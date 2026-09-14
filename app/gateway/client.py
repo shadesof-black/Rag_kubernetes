@@ -8,10 +8,16 @@ from app.config import settings
 
 # Production gateway client:
 # Defaults to ChatGroq using active model (openai/gpt-oss-20b)
-portkey_client = Portkey(
-    api_key=settings.PORTKEY_API_KEY,
-    config=settings.PORTKEY_CONFIG,
-) if settings.PORTKEY_API_KEY else None
+portkey_client = None
+if settings.PORTKEY_API_KEY:
+    try:
+        portkey_client = Portkey(
+            api_key=settings.PORTKEY_API_KEY,
+            config=settings.PORTKEY_CONFIG,
+        )
+    except Exception as e:
+        logfire.warning(f"Portkey initialization warning: {e}")
+        portkey_client = None
 
 
 def get_langchain_llm(feature: str = "rag") -> ChatGroq:
