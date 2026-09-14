@@ -46,7 +46,7 @@ graph LR
         direction TB
         LOADER["Document Loaders\nPDF · HTML · DOCX · PPTX · TXT"]
         PARSED[("📁 processed_data/\nLocal JSON Chunks")]
-        EMB["🔢 Gemini Embeddings\ngemini-embedding-2-preview · 3072-dim"]
+        EMB["🔢 Gemini Embeddings\nmodels/gemini-embedding-001 · 3072-dim"]
     end
 
     %% ── Observability ────────────────────────────────────────────────────────
@@ -159,7 +159,7 @@ graph TB
         direction LR
         LOAD["Document Loaders\nPDF · HTML · DOCX · PPTX · TXT"]
         PROC[("📁 processed_data/\nLocal JSON Chunks")]
-        EMB["🔢 Gemini Embeddings\ngemini-embedding-2-preview · 3072-dim"]
+        EMB["🔢 Gemini Embeddings\nmodels/gemini-embedding-001 · 3072-dim"]
     end
 
     subgraph EVALS ["6. Evaluation Suite  —  RAGAS"]

@@ -52,7 +52,7 @@ def get_embedding_model():
     if model is None:
         # Initialized ONLY on first use!
         model = GoogleGenerativeAIEmbeddings(
-            model="models/gemini-embedding-2-preview",
+            model="models/models/gemini-embedding-001",
             google_api_key=settings.GEMINI_API_KEY
         )
     return model

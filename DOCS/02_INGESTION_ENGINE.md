@@ -14,7 +14,7 @@ graph LR
     BS4 --> Chunker
     Simple --> Chunker
     Office --> Chunker
-    Chunker --> Embedder[Gemini gemini-embedding-2-preview]
+    Chunker --> Embedder[Gemini models/gemini-embedding-001]
     Embedder --> VectorDB[(Qdrant Cloud)]
 ```
 
@@ -35,7 +35,7 @@ All document parsing runs entirely on-device — no external OCR service or clou
 *   **Logic**: The system uses a semantic-ish, paragraph-aware splitter. It attempts to keep paragraphs together to maintain context, ensuring that no chunk is cut off mid-sentence whenever possible. This prevents the LLM from getting "hallucinated" fragments.
 
 ### 3. Vectorization & Storage
-*   **Embedding Model**: `gemini-embedding-2-preview` (Google Gemini). A state-of-the-art embedding model specifically tuned for retrieval tasks.
+*   **Embedding Model**: `models/gemini-embedding-001` (Google Gemini). A state-of-the-art embedding model specifically tuned for retrieval tasks.
 *   **Vector Dimensions**: `3072` dimensions.
 *   **Vector Database**: **Qdrant**. We use a Cloud-hosted Qdrant instance for low-latency retrieval.
 *   **Distance Metric**: **Cosine Similarity** (`models.Distance.COSINE`) is used to measure how closely a user query matches our document chunks.

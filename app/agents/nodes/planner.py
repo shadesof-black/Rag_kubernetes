@@ -3,19 +3,24 @@ from app.gateway import get_langchain_llm
 import logfire
 
 # Portkey-backed LLM: fallback + cache + retry — same .invoke() interface as ChatGroq
-llm = get_langchain_llm(feature="planner")
-
 def planner_node(state: AgentState):
     """
     The Planner determines if a search is needed based on the ENTIRE conversation.
     """
+    llm = get_langchain_llm(feature="planner")
+
     # Get the conversation history (excluding the latest message)
     history = ""
     for msg in state["messages"][:-1]:
-        role = "User" if msg["role"] == "user" else "Assistant"
-        history += f"{role}: {msg['content']}\n"
+        role_val = msg.get("role") if isinstance(msg, dict) else getattr(msg, "type", "user")
+        role = "User" if role_val in ("user", "human") else "Assistant"
+        content = msg.get("content") if isinstance(msg, dict) else getattr(msg, "content", "")
+        history += f"{role}: {content}\n"
     
-    user_message = state["messages"][-1]["content"] if state["messages"] else ""
+    user_message = ""
+    if state["messages"]:
+        last_msg = state["messages"][-1]
+        user_message = last_msg.get("content") if isinstance(last_msg, dict) else getattr(last_msg, "content", "")
     
     prompt = f"""
     You are an intelligent Assistant Planner. 

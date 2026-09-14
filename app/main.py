@@ -7,7 +7,11 @@ import os
 from dotenv import load_dotenv
 
 load_dotenv()
-logfire.configure(token=os.getenv("LOGFIRE_TOKEN"))
+logfire.configure(
+    token=os.getenv("LOGFIRE_TOKEN"),
+    service_name="enterprise-rag-backend",
+    inspect_arguments=False
+)
 
 # Now safe to import app modules - logfire is already active
 from fastapi import FastAPI, Response
@@ -18,13 +22,29 @@ from pydantic import BaseModel
 from typing import Optional
 
 
-# Initialize FastAPI
+# Initialize FastAPI with CORS support
+from fastapi.middleware.cors import CORSMiddleware
+
 app = FastAPI(title="Enterprise Agentic RAG API")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+logfire.instrument_fastapi(app)
+logfire.instrument_requests()
 
 
 @app.on_event("startup")
 def startup_event():
     initialize_rails()
+    try:
+        from app.services.retrieval.embedding import _init
+        _init()
+    except Exception as e:
+        logfire.warning(f"Embedding pre-warm warning: {e}")
 
 class QueryRequest(BaseModel):
     q: str

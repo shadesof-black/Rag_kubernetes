@@ -1,22 +1,27 @@
 import logfire
 from app.agents.state import AgentState
-from app.gateway import portkey_client, extract_cache_status
+from app.gateway import get_langchain_llm, portkey_client, extract_cache_status
+from app.config import settings
 
 
 def generate_node(state: AgentState):
     """
     Synthesizes a response using both Documentation Context AND Conversation History.
-    Uses the native Portkey client (not LangChain) so we can read the
-    x-portkey-cache-status response header and surface Cache: Hit in the UI.
+    Uses ChatGroq with Portkey fallback to guarantee response availability.
     """
     query = state["current_query"]
 
     history_str = ""
     for msg in state["messages"][:-1]:
-        role = "User" if msg["role"] == "user" else "Assistant"
-        history_str += f"{role}: {msg['content']}\n"
+        role_val = msg.get("role") if isinstance(msg, dict) else getattr(msg, "type", "user")
+        role = "User" if role_val in ("user", "human") else "Assistant"
+        content = msg.get("content") if isinstance(msg, dict) else getattr(msg, "content", "")
+        history_str += f"{role}: {content}\n"
 
-    user_msg = state["messages"][-1]["content"] if state["messages"] else ""
+    user_msg = ""
+    if state["messages"]:
+        last_msg = state["messages"][-1]
+        user_msg = last_msg.get("content") if isinstance(last_msg, dict) else getattr(last_msg, "content", "")
 
     if query == "CONVERSATIONAL":
         logfire.info("Generating conversational response using memory.")
@@ -58,13 +63,26 @@ def generate_node(state: AgentState):
 
     with logfire.span("✍️ LLM Synthesis"):
         try:
-            response = portkey_client.chat.completions.create(
-                messages=[{"role": "user", "content": prompt}],
-                temperature=0.1
-            )
-            content = response.choices[0].message.content
-            cache_status = extract_cache_status(response)
-            is_cache_hit = cache_status == "HIT"
+            content = None
+            is_cache_hit = False
+
+            if portkey_client:
+                try:
+                    response = portkey_client.chat.completions.create(
+                        model=settings.GROQ_MODEL,
+                        messages=[{"role": "user", "content": prompt}],
+                        temperature=0.1
+                    )
+                    content = response.choices[0].message.content
+                    cache_status = extract_cache_status(response)
+                    is_cache_hit = cache_status == "HIT"
+                except Exception:
+                    pass
+
+            if content is None:
+                llm = get_langchain_llm(feature="responder")
+                response = llm.invoke(prompt)
+                content = response.content
 
             if is_cache_hit:
                 logfire.info("⚡ Gateway Cache Hit — response served from Portkey cache.")
@@ -85,3 +103,4 @@ def generate_node(state: AgentState):
         except Exception as e:
             logfire.error(f"LLM Generation failed: {e}")
             raise e
+

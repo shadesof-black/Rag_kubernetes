@@ -107,7 +107,7 @@ from portkey_ai import Portkey
 portkey = Portkey(api_key=PORTKEY_API_KEY)
 
 response = portkey.chat.completions.create(
-    model="@flight-policsy/llama-3.3-70b-versatile",
+    model="@flight-policsy/openai/gpt-oss-20b",
     messages=[{"role": "user", "content": "What is Kubernetes?"}]
 )
 ```
@@ -218,8 +218,8 @@ If the primary model fails (any non-2xx), Portkey automatically switches to the 
 portkey = Portkey(api_key=PORTKEY_API_KEY, config={
     "strategy": {"mode": "fallback"},
     "targets": [
-        {"override_params": {"model": "@flight-policsy/llama-3.3-70b-versatile"}},  # primary
-        {"override_params": {"model": "@flight-policy/llama-3.1-8b-instant"}}       # fallback
+        {"override_params": {"model": "@flight-policsy/openai/gpt-oss-20b"}},  # primary
+        {"override_params": {"model": "@flight-policy/openai/gpt-oss-20b"}}       # fallback
     ]
 })
 ```
@@ -251,8 +251,8 @@ Split traffic between models by weight. Each request is routed probabilistically
 portkey = Portkey(api_key=PORTKEY_API_KEY, config={
     "strategy": {"mode": "loadbalance"},
     "targets": [
-        {"override_params": {"model": "@flight-policsy/llama-3.3-70b-versatile"}, "weight": 0.7},
-        {"override_params": {"model": "@flight-policy/llama-3.1-8b-instant"},     "weight": 0.3}
+        {"override_params": {"model": "@flight-policsy/openai/gpt-oss-20b"}, "weight": 0.7},
+        {"override_params": {"model": "@flight-policy/openai/gpt-oss-20b"},     "weight": 0.3}
     ]
 })
 ```
@@ -369,13 +369,13 @@ from langchain_openai import ChatOpenAI
 from portkey_ai import createHeaders, PORTKEY_GATEWAY_URL
 
 # Before (direct Groq)
-llm = ChatGroq(api_key=GROQ_API_KEY, model="llama-3.3-70b-versatile")
+llm = ChatGroq(api_key=GROQ_API_KEY, model="openai/gpt-oss-20b")
 
 # After (Portkey gateway — everything else unchanged)
 llm = ChatOpenAI(
     api_key=PORTKEY_API_KEY,
     base_url=PORTKEY_GATEWAY_URL,
-    model="@flight-policsy/llama-3.3-70b-versatile",
+    model="@flight-policsy/openai/gpt-oss-20b",
     default_headers=createHeaders(
         api_key=PORTKEY_API_KEY,
         metadata={"feature": "rag-pipeline", "_user": "system"}
@@ -401,8 +401,8 @@ PRODUCTION_CONFIG = {
     },
     "cache": {"mode": "simple"},
     "targets": [
-        {"override_params": {"model": "@flight-policsy/llama-3.3-70b-versatile"}},
-        {"override_params": {"model": "@flight-policy/llama-3.1-8b-instant"}}
+        {"override_params": {"model": "@flight-policsy/openai/gpt-oss-20b"}},
+        {"override_params": {"model": "@flight-policy/openai/gpt-oss-20b"}}
     ]
 }
 
@@ -456,7 +456,7 @@ from langchain_openai import ChatOpenAI
 gateway_llm = ChatOpenAI(
     api_key=PORTKEY_API_KEY,
     base_url=PORTKEY_GATEWAY_URL,
-    model="@flight-policsy/llama-3.3-70b-versatile",
+    model="@flight-policsy/openai/gpt-oss-20b",
     default_headers=createHeaders(
         api_key=PORTKEY_API_KEY,
         config=PRODUCTION_CONFIG,
@@ -577,8 +577,8 @@ GATEWAY_CONFIG = {
         "on_status_codes": [429, 503]   # retry before triggering the fallback
     },
     "targets": [
-        {"override_params": {"model": "@rag/llama-3.3-70b-versatile"}},    # primary
-        {"override_params": {"model": "@brag/llama-3.1-8b-instant"}},      # fallback
+        {"override_params": {"model": "@rag/openai/gpt-oss-20b"}},    # primary
+        {"override_params": {"model": "@brag/openai/gpt-oss-20b"}},      # fallback
     ]
 }
 ```

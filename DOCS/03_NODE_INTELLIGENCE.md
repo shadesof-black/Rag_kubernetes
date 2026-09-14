@@ -17,7 +17,7 @@ The project uses a **Cyclic State Machine** powered by **LangGraph**. Unlike sta
 *   **Services**: Qdrant Cloud (Vector Search) + FlashRank (Local Semantic Reranker)
 *   **Mechanics: The Two-Stage Retrieval Pipeline**:
     *   **Stage 1 - Fast Bi-Encoder Retrieval (Qdrant)**:
-        *   We convert the user query into a 3072-dimensional vector using Gemini's `gemini-embedding-2-preview`.
+        *   We convert the user query into a 3072-dimensional vector using Gemini's `models/gemini-embedding-001`.
         *   We perform a **Cosine Similarity** search in Qdrant to find the top **15** candidates.
         *   *Why?* This is extremely fast (sub-10ms) because it only compares pre-calculated vectors. However, it lacks deep semantic understanding of the relationship between the query and the text.
     *   **Stage 2 - Deep Cross-Encoder Reranking (FlashRank)**:

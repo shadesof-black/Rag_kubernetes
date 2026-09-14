@@ -25,7 +25,7 @@ The project uses a `.env` file for local development. All configuration is manag
 
 | Variable | Description | Example |
 | :--- | :--- | :--- |
-| `GEMINI_API_KEY` | Google Gemini API key used to generate 3072-dim embeddings via `gemini-embedding-2-preview` | `AIza...` |
+| `GEMINI_API_KEY` | Google Gemini API key used to generate 3072-dim embeddings via `models/gemini-embedding-001` | `AIza...` |
 
 ---
 

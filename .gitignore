@@ -1,4 +1,4 @@
-# Python
+# Python & Environments
 __pycache__/
 *.py[cod]
 *$py.class
@@ -8,6 +8,8 @@ env/
 venv/
 .venv/
 genv/
+enterprise_env
+tenvv
 build/
 develop-eggs/
 dist/
@@ -24,34 +26,40 @@ wheels/
 .installed.cfg
 *.egg
 
-# Environment variables
+# Secrets & Environment Variables
 .env
+*.pem
+*.key
 
-# Local Vector Store
+# Data & Heavy Document Repositories
+DATA/
+processed_data/
+data/
+true_data/
+noisy_data/
+notebooks/
+*.ipynb
+*.pdf
+*.pptx
+*.docx
+*.zip
+*.tar.gz
+*.onnx
+*.bin
+*.pt
+*.pth
+*.pkl
+
+# Vector Stores & Cache
 index.faiss
 metadata.pkl
-
-# Data
-
-
-# IDEs
+/tmp/
+.tmp/
+.logfire
+.deepeval
+.claude/
 .vscode/
 .idea/
-
-# OS
 .DS_Store
 Thumbs.db
-
-enterprise_env
-
-commands.md
-
-.logfire
-
-tenvv
-
-# Claude Code memory & session data
-.claude/
-
-# Logs
 *.log

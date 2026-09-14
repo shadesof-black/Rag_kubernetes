@@ -1,4 +1,5 @@
 import os
+import time 
 import sys
 import uuid
 import json
@@ -22,7 +23,9 @@ PROCESSED_DATA_DIR = "processed_data"
 # Initialize Qdrant Client
 qdrant_client = QdrantClient(
     url=settings.QDRANT_URL,
+    port=443,
     api_key=settings.QDRANT_API_KEY,
+    check_compatibility=False
 )
 
 
@@ -104,8 +107,12 @@ def process_directory(dir_path: str, source_type: str):
     with logfire.span("Scanning Directory", path=dir_path, source=source_type):
         files = [f for f in os.listdir(dir_path) if os.path.isfile(os.path.join(dir_path, f))]
         logfire.info(f"Found {len(files)} files in {dir_path}.")
-        for filename in files:
+        for i, filename in enumerate(files):
             process_file(os.path.join(dir_path, filename), filename, source_type)
+            # Delay between files to avoid Gemini rate limits
+            if i < len(files) - 1:  # no need to wait after last file
+                logfire.info(f"Waiting 10s before next file to avoid rate limits...")
+                time.sleep(10)
 
 
 def run_universal_ingestion(base_dir: str, explicit_source_type: str = None, wipe: bool = False):

@@ -5,10 +5,13 @@ from app.config import settings
 from app.services.retrieval.embedding import embed_query
 
 
-# Initialize Qdrant Client
+# Initialize Qdrant Client with SSL port 443 for Qdrant Cloud
 client = QdrantClient(
     url=settings.QDRANT_URL,
-    api_key=settings.QDRANT_API_KEY
+    port=443,
+    api_key=settings.QDRANT_API_KEY,
+    timeout=30.0,
+    check_compatibility=False
 )
 
 def search_enterprise_knowledge(query: str, limit: int = 8):
