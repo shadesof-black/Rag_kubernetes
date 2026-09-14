@@ -39,7 +39,11 @@ logfire.instrument_requests()
 
 @app.on_event("startup")
 def startup_event():
-    initialize_rails()
+    try:
+        initialize_rails()
+    except Exception as e:
+        logfire.warning(f"Guardrails startup warning: {e}")
+
     try:
         from app.services.retrieval.embedding import _init
         _init()

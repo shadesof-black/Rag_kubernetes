@@ -12,24 +12,27 @@ _rails: LLMRails | None = None
 def initialize_rails() -> None:
     """
     Build the NeMo LLMRails singleton at app startup.
-    Uses openai/gpt-oss-20b for fast intent classification at the gate —
-    the heavier openai/gpt-oss-20b is reserved for the RAG pipeline.
+    Falls back gracefully if ONNX/AVX issues occur on cloud VMs (e.g. status 132).
     """
     global _rails
 
-    guard_llm = ChatGroq(
-        api_key=settings.GROQ_API_KEY or settings.GROQ_FALLBACK_API_KEY,
-        model=settings.GROQ_MODEL,
-        temperature=0
-    )
+    try:
+        guard_llm = ChatGroq(
+            api_key=settings.GROQ_API_KEY or settings.GROQ_FALLBACK_API_KEY,
+            model=settings.GROQ_MODEL,
+            temperature=0
+        )
 
-    config = RailsConfig.from_content(
-        colang_content=COLANG_CONTENT,
-        yaml_content=YAML_CONTENT
-    )
+        config = RailsConfig.from_content(
+            colang_content=COLANG_CONTENT,
+            yaml_content=YAML_CONTENT
+        )
 
-    _rails = LLMRails(config, llm=guard_llm)
-    logfire.info("🛡️ NeMo Guardrails initialised (openai/gpt-oss-20b).")
+        _rails = LLMRails(config, llm=guard_llm)
+        logfire.info("🛡️ NeMo Guardrails initialised.")
+    except Exception as e:
+        logfire.warning(f"⚠️ NeMo Guardrails initialisation skipped on host environment ({e}). Guardrails gate will pass clean queries to LangGraph.")
+        _rails = None
     
     
 

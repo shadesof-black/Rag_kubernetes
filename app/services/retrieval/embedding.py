@@ -40,9 +40,20 @@ def _init():
     if _active_model is not None:
         return
 
-    # Force fallback — avoids Gemini quota issues on free tier
-    _active_model = _load_fallback()
-    _model_type = "fallback"
+    if settings.GEMINI_API_KEY:
+        model = _probe_gemini()
+        if model is not None:
+            _active_model = model
+            _model_type = "gemini"
+            return
+
+    try:
+        _active_model = _load_fallback()
+        _model_type = "fallback"
+    except Exception as e:
+        logfire.warning(f"⚠️ Local sentence-transformers init failed ({e}).")
+        _active_model = None
+        _model_type = "fallback"
 
 
 # ── Public helpers ─────────────────────────────────────────────────────────────
