@@ -9,13 +9,14 @@ uvicorn[standard]==0.34.2
 python-dotenv==1.1.0
 requests==2.32.3
 httpx==0.27.2
-numpy==2.2.4
+numpy==1.26.4
 pytz==2025.2
 nest-asyncio==1.6.0
 
 # --- VECTOR DB & RETRIEVAL ---
 qdrant-client==1.14.2
 flashrank==0.2.10
+onnxruntime==1.17.3
 sentence-transformers==4.1.0
 
 # --- LANGCHAIN & AGENTIC ORCHESTRATION ---
